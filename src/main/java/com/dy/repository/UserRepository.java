@@ -1,6 +1,6 @@
-package com.daeyun.repository;
+package com.dy.repository;
 
-import com.daeyun.entity.User;
+import com.dy.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.daeyun.entity;
+package com.dy.entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;

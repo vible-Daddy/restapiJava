@@ -1,8 +1,8 @@
-package com.daeyun.controller;
+package com.dy.controller;
 
-import com.daeyun.entity.User;
-import com.daeyun.repository.UserRepository;
-import com.daeyun.exception.ResourceNotFoundException;
+import com.dy.entity.User;
+import com.dy.repository.UserRepository;
+import com.dy.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

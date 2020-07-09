@@ -1,4 +1,4 @@
-package com.daeyun.exception;
+package com.dy.exception;
 
 import java.util.Date;
 
