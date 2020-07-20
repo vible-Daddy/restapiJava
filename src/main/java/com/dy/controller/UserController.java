@@ -1,52 +1,75 @@
 package com.dy.controller;
 
+import com.dy.controller.response.CommonResult;
+import com.dy.controller.response.ListResult;
+import com.dy.controller.response.SingleResult;
 import com.dy.entity.User;
+import com.dy.exception.CUserNotFoundException;
 import com.dy.repository.UserRepository;
-import com.dy.exception.ResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import com.dy.service.ResponseService;
+import io.swagger.annotations.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.List;
-
+@Api(tags = {"2. User"})
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping(value = "/v1")
 public class UserController {
-    @Autowired
-    private UserRepository userRepository;
 
-    //get all users
-    @GetMapping
-    public List<User> getAllusers(){
-        return this.userRepository.findAll();
+    private final UserRepository userRepository;
+    private final ResponseService responseService; // 결과를 처리할 Service
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token", required = true, dataType = "String", paramType = "header")
+    })
+    @ApiOperation(value = "회원 리스트 조회", notes = "모든 회원을 조회한다")
+    @GetMapping(value = "/users")
+    public ListResult<User> findAllUser() {
+        // 결과데이터가 여러건인경우 getListResult를 이용해서 결과를 출력한다.
+        return responseService.getListResult(userRepository.findAll());
     }
 
-    //get user by id
-    @GetMapping("/{id}")
-    public User getUserById(@PathVariable (value="id") long userId){
-        return this.userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found with id : "+userId));
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token", required = true, dataType = "String", paramType = "header")
+    })
+    @ApiOperation(value = "회원 단건 조회", notes = "회원번호(msrl)로 회원을 조회한다")
+    @GetMapping(value = "/user")
+    public SingleResult<User> findUser() {
+        // SecurityContext에서 인증받은 회원의 정보를 얻어온다.
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String id = authentication.getName();
+        // 결과데이터가 단일건인경우 getSingleResult를 이용해서 결과를 출력한다.
+        return responseService.getSingleResult(userRepository.findByUid(id).orElseThrow(CUserNotFoundException::new));
     }
-    //create user
-    @PostMapping
-    public User createUser(@Valid @RequestBody User user){
-        return this.userRepository.save(user);
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token", required = true, dataType = "String", paramType = "header")
+    })
+    @ApiOperation(value = "회원 수정", notes = "회원정보를 수정한다")
+    @PutMapping(value = "/user")
+    public SingleResult<User> modify(
+            @ApiParam(value = "회원이름", required = true) @RequestParam String name) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String id = authentication.getName();
+        User user = userRepository.findByUid(id).orElseThrow(CUserNotFoundException::new);
+        user.setName(name);
+        return responseService.getSingleResult(userRepository.save(user));
     }
-    //update user
-    @PutMapping("/{id}")
-    public User updateUser(@Valid @RequestBody User user,@PathVariable(value="id") long userId){
-        User existing = this.userRepository.findById(userId)
-                .orElseThrow(()->new ResourceNotFoundException("User not found with id :"+userId));
-        existing.setName(user.getName());
-        existing.setEmail(user.getEmail());
-        return this.userRepository.save(existing);
-    }
-    //delete user by id
-    @DeleteMapping("/{id}")
-    public ResponseEntity<User> deleteUser(@PathVariable(value="id") long userId){
-        User existing = this.userRepository.findById(userId)
-                .orElseThrow(()->new ResourceNotFoundException("User not found with id :"+userId));
-        this.userRepository.delete(existing);
-        return ResponseEntity.ok().build();
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "X-AUTH-TOKEN", value = "로그인 성공 후 access_token", required = true, dataType = "String", paramType = "header")
+    })
+    @ApiOperation(value = "회원 삭제", notes = "회원번호(msrl)로 회원정보를 삭제한다")
+    @DeleteMapping(value = "/user/{msrl}")
+    public CommonResult delete(
+            @ApiParam(value = "회원번호", required = true) @PathVariable long msrl) {
+        userRepository.deleteById(msrl);
+        // 성공 결과 정보만 필요한경우 getSuccessResult()를 이용하여 결과를 출력한다.
+        return responseService.getSuccessResult();
     }
 }
+

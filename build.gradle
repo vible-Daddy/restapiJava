@@ -1,5 +1,6 @@
 plugins {
     id 'org.springframework.boot' version '2.3.1.RELEASE'
+//    id 'org.springframework.boot' version '2.1.4.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'java'
 }
@@ -8,27 +9,41 @@ group = 'com.daeyun'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.3.1.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+//    implementation 'org.springframework.boot:spring-boot-starter-freemarker'
+//    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.19'
-    compile group: 'org.hibernate', name: 'hibernate-validator', version: '6.1.0.Final'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.19'
+    implementation group: 'org.hibernate', name: 'hibernate-validator', version: '6.1.0.Final'
 
-    compile group: 'org.springframework.security', name: 'spring-security-core', version: '5.3.2.RELEASE'
-    compile group: 'org.springframework.security', name: 'spring-security-web', version: '5.3.2.RELEASE'
-    compile group: 'org.springframework.security', name: 'spring-security-config', version: '5.3.2.RELEASE'
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+    implementation 'io.springfox:springfox-swagger2:2.6.1'
+    implementation 'io.springfox:springfox-swagger-ui:2.6.1'
+
+    compileOnly 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
+    runtimeOnly 'com.h2database:h2'
 
 
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 test {
